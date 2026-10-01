@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Claude Account Switcher</title>
+    <meta name="description" content="Keep several claude.ai accounts signed in and switch between them in one click." />
+    <link rel="stylesheet" href="tokens.css" />
+    <style>
+      :root { --font-ui: var(--font-sans); --fs-base: 15px; }
+      body { line-height: 1.55; }
+      main { max-width: 720px; margin: 0 auto; padding: 56px 16px 72px; }
+      .mark { color: var(--claude); font-family: var(--font-mono); font-size: 20px; }
+      h1 { font-family: var(--font-serif); font-weight: 400; font-size: clamp(28px, 6vw, 40px); line-height: 1.15; margin: 12px 0; }
+      .lead { color: var(--text-2); font-size: 17px; margin: 0 0 24px; }
+      .cta { display: flex; flex-wrap: wrap; gap: 10px; }
+      .cta .btn { height: 40px; padding: 0 18px; font-size: 15px; text-decoration: none; }
+      .shot { margin: 40px 0; padding: 16px; display: flex; justify-content: center; border-radius: var(--r-lg); border: 0.5px solid var(--border); background: var(--surface); }
+      .shot img { max-width: 100%; height: auto; border-radius: var(--r-md); box-shadow: var(--shadow); }
+      h2 { font-size: 15px; font-weight: 600; margin: 40px 0 12px; }
+      ol { margin: 0; padding-left: 20px; }
+      li { margin: 6px 0; color: var(--text-2); }
+      code, .kbd { font-family: var(--font-mono); font-size: 13px; }
+      .fine { color: var(--muted); font-size: 13px; margin: -12px 0 24px; }
+      .note { color: var(--muted); font-size: 14px; margin: 0; }
+      footer { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 48px; color: var(--muted); font-size: 13px; }
+      a { color: var(--claude); }
+      .btn.primary { color: #fff; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <span class="mark" aria-hidden="true">✻</span>
+      <h1>Every Claude account, one click away.</h1>
+      <p class="lead">A small Chrome extension that keeps all your claude.ai accounts signed in, switches between them instantly, and opens “not found” links in the account they belong to.</p>
+      <p class="fine">Unofficial — not affiliated with Anthropic.</p>
+      <div class="cta">
+        <a class="btn primary" id="download" href="https://github.com/Jeff909Dev/claude-account-switcher/releases/latest/download/claude-account-switcher.zip">Download for Chrome</a>
+        <a class="btn" href="https://github.com/Jeff909Dev/claude-account-switcher">View on GitHub</a>
+      </div>
+      <div class="shot"><img src="screenshot.png" width="320" alt="The extension popup listing two accounts with their usage" /></div>
+      <h2>Install in three steps</h2>
+      <ol>
+        <li>Download and unzip <code>claude-account-switcher.zip</code>.</li>
+        <li>Open <code>chrome://extensions</code> and turn on <b>Developer mode</b>.</li>
+        <li>Click <b>Load unpacked</b>, pick the unzipped folder, pin it, then press <span class="kbd">Alt+Shift+A</span> (<span class="kbd">⌥⇧A</span> on Mac).</li>
+      </ol>
+      <h2>Privacy</h2>
+      <p class="note">Your cookies stay in your browser. The extension only talks to claude.ai — no server, no analytics, no tracking. Saved sessions are stored unencrypted inside your Chrome profile.</p>
+      <footer><span>MIT licensed</span><a href="https://github.com/Jeff909Dev/claude-account-switcher">GitHub</a><span>Unofficial — not affiliated with Anthropic.</span></footer>
+    </main>
+  </body>
+</html>

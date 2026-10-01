@@ -1,0 +1,32 @@
+{
+  "name": "claude-account-switcher",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "build:e2e": "node scripts/build.mjs --origin=http://localhost:4319 --shadow=open --out=dist-e2e",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "pnpm build:e2e && playwright test",
+    "zip": "pnpm build && rm -f claude-account-switcher.zip && cd dist && zip -qr ../claude-account-switcher.zip ."
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@types/chrome": "^0.3.4",
+    "@types/node": "^26.6.3",
+    "esbuild": "^0.28.2",
+    "happy-dom": "^20.14.5",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.3"
+  }
+}

@@ -1,0 +1,10 @@
+node_modules/
+dist/
+*.zip
+.superpowers/
+.playwright-mcp/
+test-results/
+playwright-report/
+.DS_Store
+dist-e2e/
+.vercel
