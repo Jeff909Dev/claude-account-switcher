@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Privacy policy · Account Switcher for Claude</title>
+    <meta name="description" content="What Account Switcher for Claude stores, what it sends and to whom: everything stays in your browser and it only talks to claude.ai." />
+    <link rel="icon" href="icon-128.png" />
+    <link rel="stylesheet" href="tokens.css" />
+    <style>
+      :root { --font-ui: var(--font-sans); --fs-base: 15px; }
+      body { line-height: 1.6; }
+      main { max-width: 720px; margin: 0 auto; padding: 56px 16px 72px; }
+      .brand { display: flex; align-items: center; gap: 10px; margin: 0; font-weight: 600; font-size: 15px; }
+      .brand a { color: var(--text); text-decoration: none; }
+      h1 { font-family: var(--font-serif); font-weight: 400; font-size: clamp(28px, 6vw, 40px); line-height: 1.15; margin: 12px 0 4px; }
+      .date { color: var(--muted); font-size: 13px; margin: 0 0 24px; }
+      .lead { color: var(--text-2); font-size: 17px; margin: 0 0 20px; }
+      .card { margin: 0 0 8px; padding: 14px 18px; border-radius: var(--r-lg); border: 0.5px solid var(--border); background: var(--surface); }
+      .card ul { margin: 0; }
+      h2 { font-size: 15px; font-weight: 600; margin: 36px 0 10px; }
+      p { margin: 0 0 12px; color: var(--text-2); }
+      ul { margin: 0 0 12px; padding-left: 20px; }
+      li { margin: 6px 0; color: var(--text-2); }
+      b { color: var(--text); font-weight: 600; }
+      code { font-family: var(--font-mono); font-size: 13px; overflow-wrap: anywhere; }
+      footer { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 48px; color: var(--muted); font-size: 13px; }
+      a { color: var(--claude); }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p class="brand"><img src="icon-128.png" width="28" height="28" alt="" /><a href="./">Account Switcher for Claude</a></p>
+      <h1>Privacy policy</h1>
+      <p class="date">Last updated 2 October 2026 · applies to version 0.2.0 and later</p>
+      <p class="lead">Account Switcher for Claude is a Chrome extension that keeps several claude.ai accounts signed in and switches between them. It is an independent open-source project, unofficial and not affiliated with Anthropic. This page says exactly what it stores, what it sends and to whom.</p>
+      <div class="card">
+        <ul>
+          <li><b>Everything it stores stays in your browser</b>, on this computer.</li>
+          <li><b>It only talks to claude.ai</b>, with requests your browser would make for claude.ai anyway.</li>
+          <li><b>No servers of ours, no analytics, no ads, no selling.</b> Nobody but you gets your data.</li>
+        </ul>
+      </div>
+
+      <h2>What it stores</h2>
+      <p>The extension keeps its data in <code>chrome.storage.local</code>, its private storage inside your Chrome profile:</p>
+      <ul>
+        <li><b>For each account you save:</b> its claude.ai cookies, including the session cookie that keeps you signed in; the details claude.ai reports for it (email address, name, organization id and plan); and the label and colour you give it.</li>
+        <li><b>Usage snapshots:</b> for each saved account, how much of each claude.ai usage limit is used and when it resets, so the popup can show it.</li>
+        <li><b>"Open as" choices:</b> when you open a claude.ai link in another account, the link's id (for example <code>artifact:…</code>) and the account you chose, so it's offered first next time. Only the 500 most recent are kept.</li>
+        <li><b>Your preferences:</b> theme, style, and whether the in-page switcher and the usage badge are on.</li>
+      </ul>
+      <p>While you add an account, the login you were using is kept in <code>chrome.storage.session</code> (in memory, cleared when Chrome closes) so Cancel can restore it.</p>
+      <p>Like all extension storage, it is <b>not encrypted at rest</b>: Chrome keeps it as files in your profile folder. Websites and other extensions can't read it, but anyone or any program with access to your computer account could, just as they could read your browser's own cookies. It is never synced to your Google account or to other devices.</p>
+
+      <h2>What it sends, and to whom</h2>
+      <p>The extension only sends requests to <code>https://claude.ai</code>, from your browser:</p>
+      <ul>
+        <li>When you add or switch an account, it asks claude.ai who is signed in (<code>/api/bootstrap</code>) to confirm the login.</li>
+        <li>To show usage, it asks claude.ai for the active account's usage limits (<code>/api/organizations/…/usage</code>) when you open the popup, after a switch and every 15 minutes.</li>
+      </ul>
+      <p>These are the same kind of requests claude.ai's own pages make, sent with the claude.ai cookies in your browser. To switch, the extension puts the saved claude.ai cookies of the chosen account in your browser and reloads your claude.ai tabs.</p>
+      <p>On claude.ai pages it looks only at the status of claude.ai's own requests (not their content) to notice a link that isn't in the current account, and it listens for its keyboard shortcuts (Alt+1–9). It does not read your chats, files or anything you type.</p>
+      <p>There are <b>no servers of ours</b> and <b>no analytics, tracking, ads or crash reports</b>. Your data is <b>never sold, shared or transferred</b> to anyone, and it is used only for the features described here, never for anything unrelated such as advertising or credit decisions. The extension runs <b>no remote code</b>: everything it runs ships in the package you install.</p>
+
+      <h2>Permissions</h2>
+      <ul>
+        <li><b>Cookies</b> and access to <b>claude.ai</b>: read, save and restore claude.ai cookies to switch accounts, ask claude.ai who is signed in and how much usage is left, and show the in-page switcher and the "Open as …" banner on claude.ai.</li>
+        <li><b>Storage</b>: keep the data listed above on your computer.</li>
+        <li><b>Alarms</b>: refresh the usage numbers every 15 minutes.</li>
+        <li><b>Web requests</b>: see when a claude.ai page's own request answers "not found", to offer "Open as …".</li>
+      </ul>
+
+      <h2>Keeping and deleting your data</h2>
+      <p>Data stays until you delete it:</p>
+      <ul>
+        <li><b>Manage → Remove</b> deletes that account's saved cookies, details, usage numbers and "Open as" choices from the extension. It doesn't sign the account out of claude.ai.</li>
+        <li><b>Uninstalling the extension</b> deletes everything it stored.</li>
+      </ul>
+
+      <h2>Changes</h2>
+      <p>If this policy changes, the new version is published on this page with a new date, and every change is visible in the project's history on GitHub.</p>
+
+      <h2>Contact</h2>
+      <p>Questions or concerns: open an issue on <a href="https://github.com/Jeff909Dev/claude-account-switcher/issues">GitHub issues</a>. The full source code is on <a href="https://github.com/Jeff909Dev/claude-account-switcher">GitHub</a>.</p>
+
+      <footer><span>MIT licensed</span><a href="./">Home</a><a href="https://github.com/Jeff909Dev/claude-account-switcher">GitHub</a><span>Unofficial — not affiliated with Anthropic. Claude is a trademark of Anthropic, PBC.</span></footer>
+    </main>
+  </body>
+</html>

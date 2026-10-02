@@ -26,7 +26,8 @@ readout (`5h 25% · week 54% · Fable 64%`). Unofficial — not affiliated with 
 ## Privacy
 
 Sessions stay in your browser (`chrome.storage.local`, unencrypted inside your Chrome profile). The
-extension only talks to claude.ai. No server, no analytics, no tracking.
+extension only talks to claude.ai. No server, no analytics, no tracking. Full
+[privacy policy](https://claude-account-switcher.vercel.app/privacy.html) (source: `site/privacy.html`).
 
 ## Develop
 
