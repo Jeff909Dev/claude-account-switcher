@@ -3,6 +3,9 @@
 Date: 2026-10-01 · Status: draft for review · Repo: `claude-account-switcher`
 Sibling project: Claude Usage (macOS menu bar app) — the `claude-code-usage` repo, own spec.
 Visual reference: `prototypes/extension.html` in the `claude-code-usage` repo.
+**Update 2026-10-02 (Chrome Web Store prep, v0.2.0):** the product is renamed **Account Switcher for Claude**
+(repo name unchanged), "Find in my accounts" is removed, and the `tabs` and `declarativeNetRequestWithHostAccess`
+permissions are dropped. See the dated notes in §4.5, §4.6, §5, §6, §11 and §12.
 
 ## 1. Intent
 
@@ -65,18 +68,19 @@ Chosen: **1**.
 5. **Link rescue** (artifacts, chats, projects): when a claude.ai page's own API call for the page resource returns
    404/403 (observed via `webRequest.onCompleted`, read-only), the content script shows a banner: "This isn't in
    <label> (<email>)" with the other accounts:
-   - v1 baseline: **Open as <account>** buttons (switch + reload + remember).
-   - v1 if the plan's spike succeeds: **Find in my accounts** probes each saved account without switching, by
-     sending the resource request from the service worker with that account's `Cookie` header injected through a
-     `declarativeNetRequest` session rule scoped to `tabIds: [TAB_ID_NONE]` and a one-off probe URL marker.
-     Results: ✓ found / ✗ not found / – signed out; then **Open as X** and "always open this resource in X".
+   - **Open as <account>** buttons (switch + reload + remember).
    - Remembered mapping `resourceId → accountId` in storage; next visit offers it first.
+   - *Removed 2026-10-02:* **Find in my accounts**, which probed each saved account without switching by injecting
+     its `Cookie` header through a `declarativeNetRequest` session rule. It shipped off by default
+     (`prefs.rescueProbe`) and was never verified on real claude.ai (spike check 6). It was removed before the
+     Chrome Web Store submission, together with the `declarativeNetRequestWithHostAccess` permission, its startup
+     rule sweep, its pref and its UI. **Open as …** is the only way to rescue a link.
 
 6. **Usage at a glance** (very simple, independent of the menu bar app): each account row in the popup shows a
    one-line mini readout — two thin bars `5h 25% · week 54%` plus the model-scoped weekly limit when present
    (`Fable 64%`); hover/title shows reset times. The active account's numbers are live; other accounts show the
-   last snapshot taken while they were active, muted with "as of 2h ago" (refreshed live too only when the
-   `rescueProbe` cookie-injection mechanism is proven and enabled). The toolbar badge shows the active account's
+   last snapshot taken while they were active, muted with "as of 2h ago" (2026-10-02: they are never refreshed in
+   the background; that needed the cookie-injection probe removed in §4.5). The toolbar badge shows the active account's
    highest % when it is ≥ 70 (warn colour) / ≥ 90 (critical colour), empty otherwise (pref, default on).
    Source: claude.ai's own usage endpoint for the active org (candidate `GET /api/organizations/{orgUuid}/usage`,
    confirmed in the spike), parsed tolerantly (`limits[]` if present, else `five_hour` / `seven_day` /
@@ -86,7 +90,7 @@ Chosen: **1**.
 ## 5. Architecture
 
 ```
-manifest.json            # MV3; permissions: cookies, storage, tabs, alarms, webRequest, declarativeNetRequest(WithHostAccess)
+manifest.json            # MV3; permissions: cookies, storage, alarms, webRequest
                          # host_permissions: https://claude.ai/*
 src/background/
   index.ts               # wires listeners, message router
@@ -95,7 +99,7 @@ src/background/
   identity.ts            # whoAmI(): authenticated claude.ai API call → {accountUuid, email, name, orgs, plan}
   switcher.ts            # switchTo(id): lock, snapshot outgoing, restore target, reload tabs, verify
   addAccount.ts          # add flow state machine (idle → waitingLogin → saving → done / cancelled)
-  rescue.ts              # 404 detection per tab, probe (spike-gated), remember mapping
+  rescue.ts              # 404 detection per tab, "Open as" + remember mapping
   usage.ts               # fetch + parse usage for the active org, snapshots per account, badge, alarm
 src/popup/               # popup.html + popup.ts + popup.css (vanilla TS, tokens from tokens.css)
 src/content/             # claude.ai content script: in-page switcher, rescue banner, Alt+N keys (Shadow DOM)
@@ -107,16 +111,28 @@ tests/e2e/               # Playwright: Chromium with the unpacked extension agai
 Units talk through typed messages (`{type:"switch", accountId}` etc.). `cookieJar`, `accounts`, `identity` know
 nothing about UI; `switcher` and `addAccount` are the only orchestrators; popup and content script are views.
 
+**Permissions (2026-10-02, least privilege for the Chrome Web Store):** `tabs` is dropped: `tabs.query({url})`
+only needs to match claude.ai tabs, and `tabs.get(…).url` / `tabs.onUpdated`'s `url` are only read for
+claude.ai tabs, which the `https://claude.ai/*` host permission already reveals; `reload`, `create`, `remove` and
+`sendMessage` need no permission. `declarativeNetRequestWithHostAccess` went with "Find in my accounts" (§4.5).
+What is left: `cookies` (save/restore the login), `storage` (accounts, usage, prefs), `alarms` (15-min usage
+refresh), `webRequest` (see a claude.ai API call answer 403/404, read-only) and the claude.ai host permission
+(cookies, identity/usage calls, content script). A unit test checks that the manifest asks for exactly the
+permissions the `chrome.*` APIs in `src/` need, and the chrome fake hides tab URLs outside the host permission.
+
 ## 6. Data
 
 `chrome.storage.local`:
 - `accounts[]`: `{id (accountUuid), email, name, label, color, plan, orgUuid, cookies: Cookie[], savedAt, status}`
 - `usage: {[accountId]: {limits: {kind, label, percent, resetsAt}[], fetchedAt}}`
-- `activeId`, `order[]`, `resourceMap: {[resourceKey]: {accountId, at}}` (the 500 most recent), `prefs: {theme, style, inPageSwitcher, badge, rescueProbe}`.
+- `activeId`, `order[]`, `resourceMap: {[resourceKey]: {accountId, at}}` (the 500 most recent), `prefs: {theme, style, inPageSwitcher, badge}`
+  (2026-10-02: `rescueProbe` is gone; a stored value is dropped on load).
 Cookies are stored as returned by `chrome.cookies.getAll` (name, value, domain, path, secure, httpOnly, sameSite,
 expirationDate, hostOnly, storeId), restored with `chrome.cookies.set` (url derived from domain/path/secure).
 Security note: `storage.local` is readable only by this extension but is plain on disk inside the Chrome profile;
 the popup's Manage view says so. No data leaves the browser except normal requests to claude.ai.
+2026-10-02: Remove account also deletes the account's usage snapshot at once (before, it lasted until the next
+refresh), so the privacy policy (`site/privacy.html`) can promise that Remove deletes everything stored for it.
 
 ## 7. Error handling
 
@@ -154,8 +170,9 @@ usage history/charts/costs (the menu bar app does that), console.anthropic.com a
 - Exact identity endpoint and response (candidates: `/api/account`, `/api/bootstrap`, `/api/organizations`).
 - Usage endpoint for the active org and its response shape (candidate `/api/organizations/{orgUuid}/usage`).
 - Which API request a resource page makes and its 404 shape (artifact, chat, project, code artifact).
-- Whether `declarativeNetRequest` modifies the `Cookie` header on requests from the extension's own service worker
-  (`TAB_ID_NONE`) — gates "Find in my accounts"; otherwise ship "Open as…" only.
+- ~~Whether `declarativeNetRequest` modifies the `Cookie` header on requests from the extension's own service worker
+  (`TAB_ID_NONE`) — gates "Find in my accounts"; otherwise ship "Open as…" only.~~ Closed 2026-10-02: the feature
+  was removed (§4.5), so nothing depends on it.
 - Whether any non-cookie state (localStorage) must be cleared on switch to avoid stale UI.
 
 ## 12. Distribution (requested by Jeff, 2026-10-01)
@@ -167,3 +184,9 @@ usage history/charts/costs (the menu bar app does that), console.anthropic.com a
   **Download** (→ `https://github.com/Jeff909Dev/claude-account-switcher/releases/latest/download/claude-account-switcher.zip`),
   3-step install with the Load-unpacked steps, privacy note (cookies stay in your browser), link to GitHub.
   No framework, no analytics. Deployed to Vercel from `site/`.
+- **Update 2026-10-02 (requested by Jeff): Chrome Web Store.** Publishing on the store is now in scope (it was out
+  of scope above). v0.2.0 is renamed **Account Switcher for Claude** with the "Unofficial — not affiliated with
+  Anthropic." disclaimer in the manifest description, uses only the permissions in §5, and has a privacy policy at
+  `site/privacy.html` (`https://claude-account-switcher.vercel.app/privacy.html`). `store/` holds the listing text,
+  permission justifications and data-use answers (`listing.md`), the screenshots, promo tile and icon, and the
+  submission steps (`SUBMIT.md`). The GitHub release zip stays as a Load-unpacked alternative.
