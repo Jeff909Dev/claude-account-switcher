@@ -79,6 +79,16 @@ export class UsageService {
     return this.serial(() => this.doRefresh(maxAgeMs));
   }
 
+  /** A removed account's numbers go with it. Serialized with refreshes, so one can't write them back. */
+  forget(accountId: string): Promise<void> {
+    return this.serial(async () => {
+      const all = await this.all();
+      if (!(accountId in all)) return;
+      delete all[accountId];
+      await this.deps.area.set({ [USAGE_KEY]: all });
+    });
+  }
+
   async updateBadge(): Promise<void> {
     const s = await this.deps.store.load();
     const all = await this.all();

@@ -13,7 +13,7 @@ export interface RouterDeps {
   switcher: Switcher;
   addFlow: AddAccountFlow;
   rescue: RescueTracker;
-  usage: Pick<UsageService, "all" | "refreshActive" | "updateBadge">;
+  usage: Pick<UsageService, "all" | "refreshActive" | "updateBadge" | "forget">;
   broadcast(): Promise<void>;
   lastSwitch(): UiState["lastSwitch"];
   lastError(): string | null;
@@ -144,7 +144,10 @@ export function createRouter(deps: RouterDeps) {
           if (req.patch.color !== undefined) await deps.store.setColor(req.accountId, req.patch.color);
         });
       case "account:remove":
-        return mutate(() => deps.store.remove(req.accountId));
+        return mutate(async () => {
+          await deps.store.remove(req.accountId);
+          await deps.usage.forget(req.accountId);
+        });
       case "account:reorder":
         return mutate(() => deps.store.reorder(req.order));
       case "prefs:update":

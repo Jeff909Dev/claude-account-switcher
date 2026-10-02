@@ -97,6 +97,15 @@ describe("service worker", () => {
     await vi.waitFor(() => expect(warn).toHaveBeenCalled());
   });
 
+  it("removing an account deletes its saved usage numbers right away", async () => {
+    const snapshot: UsageSnapshot = { limits: [{ kind: "session", label: "5h", percent: 10, resetsAt: null }], fetchedAt: 1 };
+    await h.fake.chrome.storage.local.set({ [USAGE_KEY]: { "acct-a": snapshot, "acct-b": snapshot } });
+    await startWorker();
+    expect(await send({ type: "account:remove", accountId: "acct-b" })).toEqual({ ok: true, data: null });
+    expect(await usageOf("acct-b")).toBeUndefined();
+    expect(await usageOf("acct-a")).toEqual(snapshot);
+  });
+
   it("restores the badge when the browser starts or the extension is installed or updated", async () => {
     const snapshot: UsageSnapshot = { limits: [{ kind: "session", label: "5h", percent: 95, resetsAt: null }], fetchedAt: 1 };
     await h.fake.chrome.storage.local.set({ [USAGE_KEY]: { "acct-a": snapshot } });

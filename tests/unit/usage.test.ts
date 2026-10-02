@@ -116,6 +116,15 @@ describe("UsageService", () => {
     expect(setBadge).toHaveBeenLastCalledWith("", null);
   });
 
+  it("forget deletes one account's snapshot and keeps the others", async () => {
+    const snap = { limits: [], fetchedAt: 1 };
+    await h.fake.api.storage.local.set({ [USAGE_KEY]: { "acct-a": snap, "acct-b": snap } });
+    await usage.forget("acct-b");
+    expect(await usage.all()).toEqual({ "acct-a": snap });
+    await usage.forget("ghost");
+    expect(await usage.all()).toEqual({ "acct-a": snap });
+  });
+
   it.each([
     ["a raw SyntaxError", () => Promise.reject(new SyntaxError("Unexpected token <"))],
     ["an auth error", () => Promise.reject(Object.assign(new Error("403"), { status: 403 }))],

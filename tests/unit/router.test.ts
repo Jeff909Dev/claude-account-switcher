@@ -53,7 +53,7 @@ describe("router", () => {
       switcher,
       addFlow,
       rescue: new RescueTracker(h.store),
-      usage: { all: async () => ({ "acct-a": { limits: [], fetchedAt: 1 }, ghost: { limits: [], fetchedAt: 1 } }), refreshActive, updateBadge: vi.fn(async () => undefined) },
+      usage: { all: async () => ({ "acct-a": { limits: [], fetchedAt: 1 }, ghost: { limits: [], fetchedAt: 1 } }), refreshActive, updateBadge: vi.fn(async () => undefined), forget: vi.fn(async () => undefined) },
       broadcast,
       lastSwitch: () => null,
       lastError: () => null,
