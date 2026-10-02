@@ -8,3 +8,4 @@ playwright-report/
 .DS_Store
 dist-e2e/
 .vercel
+store/kit.html
