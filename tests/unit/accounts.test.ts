@@ -44,7 +44,13 @@ describe("AccountStore", () => {
   it("starts empty with default prefs", async () => {
     const s = await store.load();
     expect(s).toMatchObject({ version: 1, order: [], activeId: null });
-    expect(s.prefs).toEqual({ theme: "system", style: "app", inPageSwitcher: true, badge: true, rescueProbe: false });
+    expect(s.prefs).toEqual({ theme: "system", style: "app", inPageSwitcher: true, badge: true });
+  });
+
+  it("drops the retired rescueProbe pref from a stored state", async () => {
+    const prefs = { theme: "dark", style: "app", inPageSwitcher: false, badge: true, rescueProbe: true };
+    await fake.api.storage.local.set({ [STORE_KEY]: { version: 1, accounts: {}, order: [], activeId: null, resourceMap: {}, prefs } });
+    expect((await store.load()).prefs).toEqual({ theme: "dark", style: "app", inPageSwitcher: false, badge: true });
   });
 
   it("adds accounts in order with distinct labels and colours", async () => {

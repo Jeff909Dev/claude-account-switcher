@@ -11,7 +11,7 @@ export const idleAdd: UiState["add"] = { phase: "idle", targetAccountId: null, s
 export const ui = (over: Partial<UiState> = {}): UiState => ({
   accounts: [acct("a", "Acme", { plan: "Max 20x" }), acct("b", "Personal", { color: 1 }), acct("c", "Lab", { status: "signedOut" })],
   activeId: "a",
-  prefs: { theme: "system", style: "app", inPageSwitcher: true, badge: true, rescueProbe: false },
+  prefs: { theme: "system", style: "app", inPageSwitcher: true, badge: true },
   switchingTo: null,
   lastSwitch: null,
   add: idleAdd,

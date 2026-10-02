@@ -5,7 +5,7 @@
   "version": "0.1.0",
   "description": "Keep several claude.ai accounts signed in and switch between them instantly.",
   "minimum_chrome_version": "120",
-  "permissions": ["cookies", "storage", "tabs", "alarms", "webRequest", "declarativeNetRequestWithHostAccess"],
+  "permissions": ["cookies", "storage", "tabs", "alarms", "webRequest"],
   "host_permissions": ["https://claude.ai/*"],
   "background": { "service_worker": "background.js", "type": "module" },
   "icons": { "16": "icons/icon-16.png", "32": "icons/icon-32.png", "48": "icons/icon-48.png", "128": "icons/icon-128.png" },

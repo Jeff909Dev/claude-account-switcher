@@ -1,10 +1,10 @@
-import { CLAUDE_ORIGIN, CLAUDE_TAB_PATTERN } from "../shared/env";
+import { CLAUDE_TAB_PATTERN } from "../shared/env";
 import type { Push, Reply, Request } from "../shared/messages";
 import { parseResourceUrl } from "../shared/resourceKey";
-import type { ProbeResult, UiState, UsageSnapshot } from "../shared/types";
+import type { UiState, UsageSnapshot } from "../shared/types";
 import { orderedAccounts, toPublic, type AccountStore } from "./accounts";
 import type { AddAccountFlow } from "./addAccount";
-import { openAs, type Miss, type RescueTracker } from "./rescue";
+import { openAs, type RescueTracker } from "./rescue";
 import type { Switcher } from "./switcher";
 import { USAGE_MAX_AGE_MS, type UsageService } from "./usage";
 
@@ -14,7 +14,6 @@ export interface RouterDeps {
   addFlow: AddAccountFlow;
   rescue: RescueTracker;
   usage: Pick<UsageService, "all" | "refreshActive" | "updateBadge">;
-  probe(miss: Miss): Promise<ProbeResult[]>;
   broadcast(): Promise<void>;
   lastSwitch(): UiState["lastSwitch"];
   lastError(): string | null;
@@ -34,7 +33,6 @@ const REQUEST_TYPES: Record<Request["type"], true> = {
   "prefs:update": true,
   "rescue:get": true,
   "rescue:openAs": true,
-  "rescue:probe": true,
 };
 
 /** Requests a claude.ai page (content script) may send; everything else is for the popup only. */
@@ -44,7 +42,6 @@ const PAGE_REQUESTS: ReadonlySet<Request["type"]> = new Set<Request["type"]>([
   "switch",
   "addAccount:start",
   "rescue:openAs",
-  "rescue:probe",
 ]);
 
 /** Who sent a request: the subset of chrome.runtime.MessageSender the router looks at. */
@@ -62,14 +59,6 @@ export function isRequest(msg: unknown): msg is Request {
   if (typeof msg !== "object" || msg === null) return false;
   const type = (msg as { type?: unknown }).type;
   return typeof type === "string" && Object.hasOwn(REQUEST_TYPES, type);
-}
-
-function isClaudeUrl(url: string): boolean {
-  try {
-    return new URL(url).origin === CLAUDE_ORIGIN;
-  } catch {
-    return false;
-  }
 }
 
 export async function buildUiState(deps: RouterDeps): Promise<UiState> {
@@ -175,15 +164,6 @@ export function createRouter(deps: RouterDeps) {
           console.warn("Open as failed"),
         );
         return ok(null);
-      case "rescue:probe": {
-        const tabId = sender.tab?.id;
-        const miss = tabId === undefined ? undefined : deps.rescue.miss(tabId);
-        if (!miss || miss.ref.key !== req.resourceKey) return fail("Nothing to look for on this tab");
-        if (!(await deps.store.load()).prefs.rescueProbe) return fail("Find in my accounts is turned off");
-        // The probe sends a saved account's cookies to this URL.
-        if (!isClaudeUrl(miss.apiUrl)) return fail("Not a claude.ai link");
-        return ok(await deps.probe(miss));
-      }
       default:
         return fail(`Unknown request ${(req as { type: string }).type}`);
     }

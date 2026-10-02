@@ -141,6 +141,7 @@ describe("popup", () => {
       { type: "prefs:update", patch: { badge: false } },
     ]);
     expect(root.textContent).toContain("stored unencrypted in this Chrome profile");
+    expect([...root.querySelectorAll<HTMLElement>('[data-action="toggle"]')].map((t) => t.dataset.pref)).toEqual(["inPageSwitcher", "badge"]);
   });
 
   it("manage: the style control shows Claude / CLI while storing app / cli", () => {
@@ -260,7 +261,7 @@ describe("popup", () => {
   });
 
   it("applyPrefs sets theme and style on <html>", () => {
-    applyPrefs(document, ui({ prefs: { theme: "dark", style: "cli", inPageSwitcher: true, badge: true, rescueProbe: false } }));
+    applyPrefs(document, ui({ prefs: { theme: "dark", style: "cli", inPageSwitcher: true, badge: true } }));
     expect(document.documentElement.getAttribute("data-theme")).toBe("dark");
     expect(document.documentElement.getAttribute("data-style")).toBe("cli");
     applyPrefs(document, ui());

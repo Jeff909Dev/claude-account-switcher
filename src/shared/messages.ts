@@ -13,8 +13,7 @@ export type Request =
   | { type: "account:reorder"; order: string[] }
   | { type: "prefs:update"; patch: Partial<Prefs> }
   | { type: "rescue:get" }
-  | { type: "rescue:openAs"; accountId: string; resourceKey: string }
-  | { type: "rescue:probe"; resourceKey: string };
+  | { type: "rescue:openAs"; accountId: string; resourceKey: string };
 
 /** Background → UI broadcasts. */
 export type Push = { type: "state"; state: UiState } | { type: "rescue:show"; rescue: RescueInfo };

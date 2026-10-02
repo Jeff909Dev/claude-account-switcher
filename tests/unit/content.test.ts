@@ -89,7 +89,7 @@ describe("in-page switcher", () => {
       { type: "addAccount:start", targetAccountId: "c" },
       { type: "addAccount:start" },
     ]);
-    view.update(state({ prefs: { theme: "system", style: "app", inPageSwitcher: false, badge: true, rescueProbe: false } }));
+    view.update(state({ prefs: { theme: "system", style: "app", inPageSwitcher: false, badge: true } }));
     expect(root.hidden).toBe(true);
     view.destroy();
   });
@@ -132,20 +132,6 @@ describe("rescue banner", () => {
     expect(send).toHaveBeenCalledWith({ type: "addAccount:start" });
   });
 
-  it("probes when the pref is on and shows the results", async () => {
-    const send = vi.fn(async () => [
-      { accountId: "b", outcome: "found" },
-      { accountId: "c", outcome: "signedOut" },
-    ]);
-    const banner = createBanner(ensureHost(document), document, send);
-    banner.setState(state({ prefs: { theme: "system", style: "app", inPageSwitcher: true, badge: true, rescueProbe: true } }));
-    banner.show(info());
-    banner.element.querySelector<HTMLElement>('[data-action="probe"]')!.click();
-    await vi.waitFor(() => expect(banner.element.textContent).toContain("✓ found"));
-    expect(banner.element.textContent).toContain("– signed out");
-    expect(send).toHaveBeenCalledWith({ type: "rescue:probe", resourceKey: "artifact:7f3c" });
-  });
-
   it("escapes labels and can be dismissed", () => {
     const banner = createBanner(ensureHost(document), document, vi.fn(async () => null));
     banner.setState(state({ accounts: [acct("a", "<b>x</b>")] }));
@@ -167,14 +153,6 @@ describe("failures never hang", () => {
     banner.element.querySelector<HTMLElement>('[data-action="openAs"][data-id="b"]')!.click();
     await vi.waitFor(() => expect(banner.element.textContent).toContain("boom"));
     expect(banner.element.querySelector('[data-action="openAs"][data-id="b"]')).not.toBeNull();
-  });
-
-  it("banner shows the probe error", async () => {
-    const banner = createBanner(ensureHost(document), document, vi.fn(async () => { throw new Error("Find in my accounts is turned off"); }));
-    banner.setState(state({ prefs: { ...state().prefs, rescueProbe: true } }));
-    banner.show(info);
-    banner.element.querySelector<HTMLElement>('[data-action="probe"]')!.click();
-    await vi.waitFor(() => expect(banner.element.textContent).toContain("turned off"));
   });
 
   it("a state push during switching keeps the banner on Switching", async () => {

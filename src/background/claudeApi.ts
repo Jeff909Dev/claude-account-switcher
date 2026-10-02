@@ -115,10 +115,6 @@ export function isResourceMiss(apiUrl: string, statusCode: number, resourceId: s
   return u.origin === CLAUDE_ORIGIN && u.pathname.startsWith("/api/") && u.pathname.toLowerCase().includes(resourceId.toLowerCase());
 }
 
-export function retargetOrg(apiUrl: string, orgUuid: string): string {
-  return apiUrl.replace(/\/organizations\/[^/?#]+/, `/organizations/${orgUuid}`);
-}
-
 export const loginUrl = (): string => `${CLAUDE_ORIGIN}${LOGIN_PATH}`;
 
 export function hostMatchesClaude(cookieDomain: string): boolean {

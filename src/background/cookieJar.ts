@@ -75,10 +75,3 @@ export async function restore(cookies: StoredCookie[], nowMs: number = Date.now(
   }
   return restored;
 }
-
-export function cookieHeader(cookies: StoredCookie[], nowMs: number = Date.now()): string {
-  return cookies
-    .filter((c) => !isExpired(c, nowMs))
-    .map((c) => `${c.name}=${c.value}`)
-    .join("; ");
-}

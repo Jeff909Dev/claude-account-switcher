@@ -151,7 +151,7 @@ export function mount(root: HTMLElement, send: Send, initial: UiState, now: () =
         break;
       }
       case "toggle": {
-        const pref = el.dataset.pref as "inPageSwitcher" | "badge" | "rescueProbe";
+        const pref = el.dataset.pref as "inPageSwitcher" | "badge";
         fire({ type: "prefs:update", patch: { [pref]: !state.prefs[pref] } });
         break;
       }

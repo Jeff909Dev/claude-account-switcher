@@ -5,7 +5,7 @@ import { AccountStore } from "./accounts";
 import { AddAccountFlow } from "./addAccount";
 import { fetchUsageJson, whoAmI } from "./claudeApi";
 import * as jar from "./cookieJar";
-import { RescueTracker, probe, removeStaleProbeRules } from "./rescue";
+import { RescueTracker } from "./rescue";
 import { broadcastPush, buildUiState, createRouter, isRequest, refreshUsage, type RouterDeps } from "./router";
 import { Switcher, reloadClaudeTabs, type SwitchDeps } from "./switcher";
 import { USAGE_ALARM, USAGE_PERIOD_MIN, UsageService } from "./usage";
@@ -14,9 +14,6 @@ const store = new AccountStore(chrome.storage.local);
 const now = () => Date.now();
 let lastSwitch: UiState["lastSwitch"] = null;
 let lastError: string | null = null;
-
-// New probes wait for this sweep, so it can never remove a rule a probe has just added.
-const probeRulesSwept = removeStaleProbeRules().catch(() => console.warn("Could not remove leftover probe rules"));
 
 const switchDeps: SwitchDeps = {
   jar,
@@ -82,10 +79,6 @@ const routerDeps: RouterDeps = {
   addFlow,
   rescue,
   usage,
-  probe: async (miss) => {
-    await probeRulesSwept;
-    return probe(store, miss);
-  },
   broadcast,
   lastSwitch: () => lastSwitch,
   lastError: () => lastError,

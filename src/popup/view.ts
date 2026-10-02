@@ -86,9 +86,9 @@ function renderManage(s: UiState, v: ViewState): string {
   // [stored value, shown text]
   const seg = (pref: "theme" | "style", options: [string, string][], current: string) =>
     `<div class="seg" role="group" aria-label="${pref}">${options.map(([value, text]) => `<button data-action="pref" data-pref="${pref}" data-value="${value}" aria-pressed="${value === current}">${text}</button>`).join("")}</div>`;
-  const toggle = (pref: "inPageSwitcher" | "badge" | "rescueProbe", label: string) =>
+  const toggle = (pref: "inPageSwitcher" | "badge", label: string) =>
     `<div class="prefrow"><span>${label}</span><button class="switch" role="switch" data-action="toggle" data-pref="${pref}" aria-checked="${s.prefs[pref]}" aria-label="${label}"></button></div>`;
-  return `${head("Manage", true)}<div class="pane">${rows || `<p class="muted">No accounts yet.</p>`}</div><hr class="divider"><div class="pane prefs"><div class="prefrow"><span>Theme</span>${seg("theme", [["system", "system"], ["dark", "dark"], ["light", "light"]], s.prefs.theme)}</div><div class="prefrow"><span>Style</span>${seg("style", [["app", "Claude"], ["cli", "CLI"]], s.prefs.style)}</div>${toggle("inPageSwitcher", "Switcher on claude.ai")}${toggle("badge", "Usage badge on the toolbar icon")}${toggle("rescueProbe", "Find links in my accounts (experimental)")}<p class="muted note">Saved sessions are stored unencrypted in this Chrome profile. Removing an account only forgets it here; it doesn't log you out.</p></div>`;
+  return `${head("Manage", true)}<div class="pane">${rows || `<p class="muted">No accounts yet.</p>`}</div><hr class="divider"><div class="pane prefs"><div class="prefrow"><span>Theme</span>${seg("theme", [["system", "system"], ["dark", "dark"], ["light", "light"]], s.prefs.theme)}</div><div class="prefrow"><span>Style</span>${seg("style", [["app", "Claude"], ["cli", "CLI"]], s.prefs.style)}</div>${toggle("inPageSwitcher", "Switcher on claude.ai")}${toggle("badge", "Usage badge on the toolbar icon")}<p class="muted note">Saved sessions are stored unencrypted in this Chrome profile. Removing an account only forgets it here; it doesn't log you out.</p></div>`;
 }
 
 /** A failed request or the background's last error, shown under the header of whichever screen is up. */

@@ -12,20 +12,6 @@ update those files (and the fixtures in `tests/fixtures/`) — nothing else shou
 | 3 | Usage endpoint | Console: `const org = (await (await fetch('/api/organizations')).json())[0].uuid; await (await fetch('/api/organizations/' + org + '/usage')).json()`. Note whether it has `limits[]` and/or `five_hour` / `seven_day` / `seven_day_<model>`. Save scrubbed as `tests/fixtures/usage-limits.json`. | |
 | 4 | Resource miss | DevTools Network (Fetch/XHR) open, then open a link from ANOTHER account: an artifact (`/artifact/…`), a chat (`/chat/…`), a project (`/project/…`), a Claude Code artifact (`/code/artifact/…`). For each: the API URL that answers 403/404 and whether it contains the id from the page URL. The rescue banner needs, for every kind, a Fetch/XHR request (webRequest type `xmlhttprequest`) under `/api/` that answers 403 or 404 and whose path contains the exact id from the page URL — `ROUTES` in `src/shared/resourceKey.ts` plus `isResourceMiss` in `claudeApi.ts`. Check `/chat/{uuid}`, `/project/{uuid}` and `/code/artifact/{id}` one by one; if a kind fails only through a request without the id (or answers 200 with an error body), note it: the banner won't show for that kind. | |
 | 5 | Extension cookies from the service worker | After Task 9, load `dist/` unpacked, open the service worker console: `(await fetch('https://claude.ai/api/bootstrap', {credentials:'include'})).status` → expect 200 while signed in. If 401, the identity check must move into a claude.ai tab (needs the `scripting` permission — spec change). | |
-| 6 | DNR can set Cookie on extension requests | Service worker console, with ≥2 saved accounts: see snippet below. Expect `200 true`. If not, keep `rescueProbe` off (Open as… still works). | |
+| 6 | (retired 2026-10-02) | "Find in my accounts" and its `declarativeNetRequest` cookie injection were removed before the Chrome Web Store submission; nothing to check. | n/a |
 | 7 | Stale UI after a switch | Switch accounts with two claude.ai tabs open. Does any tab show the old account's chats after reload? If yes, note which storage (Application → Local Storage) holds them. | |
 | 8 | Sidebar anchor | Inspect the account button at the bottom of claude.ai's sidebar. Note a stable selector (prefer `data-testid`). Put it first in `ANCHOR_SELECTORS`. | |
-
-Snippet for #6:
-
-```js
-const s = (await chrome.storage.local.get("cas:state"))["cas:state"];
-const other = s.accounts[s.order.find((id) => id !== s.activeId)];
-const header = other.cookies.map((c) => `${c.name}=${c.value}`).join("; ");
-await chrome.declarativeNetRequest.updateSessionRules({ addRules: [{ id: 9999, priority: 1,
-  action: { type: "modifyHeaders", requestHeaders: [{ header: "cookie", operation: "set", value: header }] },
-  condition: { urlFilter: "cas_probe=spike", tabIds: [chrome.tabs.TAB_ID_NONE], resourceTypes: ["xmlhttprequest"] } }] });
-const r = await fetch("https://claude.ai/api/bootstrap?cas_probe=spike", { credentials: "omit" });
-console.log(r.status, (await r.json()).account?.email_address === other.email);
-await chrome.declarativeNetRequest.updateSessionRules({ removeRuleIds: [9999] });
-```

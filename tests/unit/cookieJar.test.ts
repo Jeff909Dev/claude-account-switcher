@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { clear, cookieHeader, cookieUrl, hasLiveSession, restore, snapshot } from "../../src/background/cookieJar";
+import { clear, cookieUrl, hasLiveSession, restore, snapshot } from "../../src/background/cookieJar";
 import type { StoredCookie } from "../../src/shared/types";
 import { installChromeFake, seedCookie, type ChromeFake } from "../fakes/chrome";
 
@@ -48,13 +48,8 @@ describe("cookieJar", () => {
     expect((await fake.api.cookies.getAll({ name: "cf_clearance" }))[0]!.value).toBe("cf-cf_clearance");
   });
 
-  it("builds urls and Cookie headers", () => {
+  it("builds urls", () => {
     expect(cookieUrl({ domain: ".claude.ai", path: "/", secure: true })).toBe("https://claude.ai/");
     expect(cookieUrl({ domain: "localhost", path: "/api", secure: false })).toBe("http://localhost/api");
-    const c = (name: string, value: string, exp?: number): StoredCookie => ({
-      name, value, domain: ".claude.ai", path: "/", secure: true, httpOnly: false, sameSite: "lax", hostOnly: false,
-      ...(exp !== undefined ? { expirationDate: exp } : {}),
-    });
-    expect(cookieHeader([c("a", "1"), c("b", "2", future()), c("x", "dead", 1)])).toBe("a=1; b=2");
   });
 });

@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { PROBE_RULE_BASE } from "../../src/background/rescue";
 import { BADGE_CRIT, USAGE_ALARM, USAGE_KEY } from "../../src/background/usage";
 import type { Push } from "../../src/shared/messages";
 import type { UiState, UsageSnapshot } from "../../src/shared/types";
@@ -13,10 +12,9 @@ describe("service worker", () => {
   let usagePercent: Record<string, number | null>; // by org; null → claude.ai answers 500
   let fetchMock: ReturnType<typeof vi.fn<(input: string) => Promise<Response>>>;
 
-  /** claude.ai as the worker's fetch sees it: identity from the browser's sessionKey; artifact 7f3c lives in org-b. */
+  /** claude.ai as the worker's fetch sees it: identity from the browser's sessionKey. */
   async function fakeClaude(input: string): Promise<Response> {
     const url = new URL(input);
-    if (url.pathname.includes("/artifacts/")) return new Response("{}", { status: url.pathname.includes("/org-b/") ? 200 : 404 });
     const [c] = await h.fake.api.cookies.getAll({ name: "sessionKey" });
     const who = identityForSession(c?.value);
     if (!who) return new Response("{}", { status: 401 });
@@ -78,10 +76,8 @@ describe("service worker", () => {
     vi.unstubAllGlobals();
   });
 
-  it("sweeps probe rules left behind by a killed worker and schedules the 15-minute usage refresh", async () => {
-    await h.fake.api.declarativeNetRequest.updateSessionRules({ addRules: [{ id: 7 }, { id: PROBE_RULE_BASE }, { id: PROBE_RULE_BASE + 4 }] });
+  it("schedules the 15-minute usage refresh", async () => {
     await startWorker();
-    await vi.waitFor(() => expect(h.fake.sessionRules.map((r) => r.id)).toEqual([7]));
     await vi.waitFor(() => expect(h.fake.alarmMap.get(USAGE_ALARM)).toMatchObject({ periodInMinutes: 15 }));
   });
 
@@ -179,16 +175,7 @@ describe("service worker", () => {
     expect(await usageOf("acct-a")).toBeUndefined();
   });
 
-  it("shows the rescue banner on a miss and probes only once the startup sweep is done", async () => {
-    await h.store.updatePrefs({ rescueProbe: true });
-    let releaseSweep!: () => void;
-    const sweepGate = new Promise<void>((r) => (releaseSweep = r));
-    const dnr = h.fake.api.declarativeNetRequest;
-    const getSessionRules = dnr.getSessionRules.bind(dnr);
-    dnr.getSessionRules = async () => {
-      await sweepGate;
-      return getSessionRules();
-    };
+  it("shows the rescue banner on a miss", async () => {
     const tab = h.fake.addTab("https://claude.ai/artifact/7f3c");
     await startWorker();
 
@@ -201,11 +188,6 @@ describe("service worker", () => {
     await vi.waitFor(() =>
       expect(h.fake.sentToTabs).toContainEqual({ tabId: tab.id, message: expect.objectContaining({ type: "rescue:show" }) }),
     );
-
-    const probed = sendFromTab(tab.id, { type: "rescue:probe", resourceKey: "artifact:7f3c" });
-    await flush();
-    expect(fetchMock).not.toHaveBeenCalled(); // the sweep would remove a fresh probe rule mid-request
-    releaseSweep();
-    expect(await probed).toEqual({ ok: true, data: [{ accountId: "acct-b", outcome: "found" }] });
+    expect(await sendFromTab(tab.id, { type: "rescue:get" })).toMatchObject({ ok: true, data: { resourceKey: "artifact:7f3c" } });
   });
 });

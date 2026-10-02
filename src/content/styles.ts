@@ -2,9 +2,9 @@
 export const CONTENT_CSS = `
 :host { all: initial; font-family: inherit; font-size: 13px; line-height: 1.4; color-scheme: light dark;
   --cas-bg: #faf9f5; --cas-surface: #f5f4ed; --cas-surface-2: #f0eee6; --cas-border: rgba(31,30,29,.14);
-  --cas-text: #141413; --cas-muted: #73726c; --cas-claude: #c96442; --cas-err: #c4314b; --cas-ok: #2f8f46; }
+  --cas-text: #141413; --cas-muted: #73726c; --cas-claude: #c96442; --cas-err: #c4314b; }
 @media (prefers-color-scheme: dark) { :host { --cas-bg: #262624; --cas-surface: #1f1e1d; --cas-surface-2: #30302e;
-  --cas-border: rgba(222,220,209,.14); --cas-text: #faf9f5; --cas-muted: #9c9a92; --cas-claude: #d97757; --cas-err: #ff6b80; --cas-ok: #4eba65; } }
+  --cas-border: rgba(222,220,209,.14); --cas-text: #faf9f5; --cas-muted: #9c9a92; --cas-claude: #d97757; --cas-err: #ff6b80; } }
 [hidden] { display: none !important; }
 .cas-switch { position: fixed; z-index: 2147483646; color: var(--cas-text); font: inherit; }
 .pill { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 8px 0 4px; border-radius: 14px;
@@ -33,8 +33,7 @@ export const CONTENT_CSS = `
 .btn.primary { background: var(--cas-claude); border-color: transparent; color: #fff; }
 .btn[disabled] { opacity: .5; cursor: default; }
 .close { border: 0; background: transparent; color: var(--cas-muted); cursor: pointer; font: inherit; font-size: 16px; }
-.results { margin: 8px 0 0; padding: 0; list-style: none; font-size: 12px; }
 .spinner { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--cas-border); border-top-color: var(--cas-claude); animation: cas-spin .8s linear infinite; }
 @keyframes cas-spin { to { transform: rotate(360deg); } }
-.found { color: var(--cas-ok); } .notfound { color: var(--cas-muted); } .err { color: var(--cas-err); }
+.err { color: var(--cas-err); }
 `;

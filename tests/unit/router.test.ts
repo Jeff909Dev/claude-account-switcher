@@ -54,7 +54,6 @@ describe("router", () => {
       addFlow,
       rescue: new RescueTracker(h.store),
       usage: { all: async () => ({ "acct-a": { limits: [], fetchedAt: 1 }, ghost: { limits: [], fetchedAt: 1 } }), refreshActive, updateBadge: vi.fn(async () => undefined) },
-      probe: vi.fn(async () => []),
       broadcast,
       lastSwitch: () => null,
       lastError: () => null,
@@ -119,19 +118,19 @@ describe("router", () => {
 
   it("lets claude.ai pages send only in-page requests; the popup may send anything", async () => {
     const page = { tab: { id: 1 }, url: "https://claude.ai/artifact/7f3c" };
-    expect(await handle({ type: "prefs:update", patch: { rescueProbe: true } }, page)).toMatchObject({ ok: false });
+    expect(await handle({ type: "prefs:update", patch: { badge: false } }, page)).toMatchObject({ ok: false });
     expect(await handle({ type: "account:remove", accountId: "acct-b" }, page)).toMatchObject({ ok: false });
     expect(await handle({ type: "account:remove", accountId: "acct-b" }, { tab: { id: 1 } })).toMatchObject({ ok: false });
     let s = await h.store.load();
     expect(s.order).toEqual(["acct-a", "acct-b"]);
-    expect(s.prefs.rescueProbe).toBe(false);
+    expect(s.prefs.badge).toBe(true);
     expect(await handle({ type: "rescue:get" }, page)).toEqual({ ok: true, data: null });
 
-    expect(await handle({ type: "prefs:update", patch: { rescueProbe: true } }, {})).toEqual({ ok: true, data: null });
+    expect(await handle({ type: "prefs:update", patch: { badge: false } }, {})).toEqual({ ok: true, data: null });
     expect(await handle({ type: "account:remove", accountId: "acct-b" }, POPUP_IN_TAB)).toEqual({ ok: true, data: null });
     s = await h.store.load();
     expect(s.order).toEqual(["acct-a"]);
-    expect(s.prefs.rescueProbe).toBe(true);
+    expect(s.prefs.badge).toBe(false);
   });
 
   it("switch returns at once and finishes in the background (popup may close)", async () => {
@@ -207,27 +206,6 @@ describe("router", () => {
     expect(await currentSession(h)).toBe("sk-B");
   });
 
-  it("rescue:probe is refused while the pref is off", async () => {
-    await deps.rescue.onApiCompleted(
-      { tabId: 1, url: "https://claude.ai/api/organizations/org-a/artifacts/7f3c", statusCode: 404 },
-      async () => "https://claude.ai/artifact/7f3c",
-    );
-    expect(await handle({ type: "rescue:probe", resourceKey: "artifact:7f3c" }, { tab: { id: 1 } })).toMatchObject({ ok: false });
-    await h.store.updatePrefs({ rescueProbe: true });
-    expect(await handle({ type: "rescue:probe", resourceKey: "artifact:7f3c" }, { tab: { id: 1 } })).toEqual({ ok: true, data: [] });
-  });
-
-  it("rescue:probe never sends saved cookies outside claude.ai", async () => {
-    await h.store.updatePrefs({ rescueProbe: true });
-    vi.spyOn(deps.rescue, "miss").mockReturnValue({
-      ref: { kind: "artifact", id: "7f3c", key: "artifact:7f3c" },
-      apiUrl: "https://claude.ai.example/api/organizations/org-a/artifacts/7f3c",
-      pageUrl: "https://claude.ai/artifact/7f3c",
-    });
-    expect(await handle({ type: "rescue:probe", resourceKey: "artifact:7f3c" }, { tab: { id: 1 } })).toMatchObject({ ok: false });
-    expect(deps.probe).not.toHaveBeenCalled();
-  });
-
   describe("add-flow requests wait for a running switch before touching cookies", () => {
     const cases: [string, () => Promise<void>, Request][] = [
       ["start", async () => undefined, { type: "addAccount:start" }],
@@ -270,6 +248,7 @@ describe("router", () => {
   it("isRequest ignores pushes and junk", () => {
     expect(isRequest({ type: "getState" })).toBe(true);
     expect(isRequest({ type: "state", state: {} })).toBe(false);
+    expect(isRequest({ type: "rescue:probe", resourceKey: "artifact:7f3c" })).toBe(false); // the retired "Find in my accounts"
     expect(isRequest(null)).toBe(false);
     expect(isRequest("switch")).toBe(false);
   });

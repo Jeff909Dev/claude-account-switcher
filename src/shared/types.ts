@@ -43,7 +43,6 @@ export interface Prefs {
   style: "app" | "cli";
   inPageSwitcher: boolean;
   badge: boolean;
-  rescueProbe: boolean;
 }
 
 export interface RememberedResource {
@@ -95,11 +94,6 @@ export interface UiState {
 }
 
 export type ResourceKind = "artifact" | "chat" | "project" | "codeArtifact";
-
-export interface ProbeResult {
-  accountId: string;
-  outcome: "found" | "notFound" | "signedOut" | "error";
-}
 
 export interface RescueInfo {
   resourceKey: string;

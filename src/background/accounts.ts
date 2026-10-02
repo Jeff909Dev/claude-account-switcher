@@ -5,7 +5,7 @@ import { createSerialQueue } from "./serial";
 export const STORE_KEY = "cas:state";
 /** How many "Open as" choices are remembered; the oldest go first. */
 export const RESOURCE_MAP_LIMIT = 500;
-export const DEFAULT_PREFS: Prefs = { theme: "system", style: "app", inPageSwitcher: true, badge: true, rescueProbe: false };
+export const DEFAULT_PREFS: Prefs = { theme: "system", style: "app", inPageSwitcher: true, badge: true };
 const PUBLIC_MAIL = new Set([
   "gmail.com", "googlemail.com", "outlook.com", "hotmail.com", "live.com", "icloud.com", "me.com", "yahoo.com", "proton.me", "protonmail.com",
 ]);
@@ -56,7 +56,6 @@ function sanitizePrefs(p: Prefs): Prefs {
     style: p.style === "cli" ? "cli" : "app",
     inPageSwitcher: Boolean(p.inPageSwitcher),
     badge: Boolean(p.badge),
-    rescueProbe: Boolean(p.rescueProbe),
   };
 }
 

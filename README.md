@@ -47,8 +47,6 @@ claude.ai assumptions live in `src/background/claudeApi.ts` and `src/content/anc
 ## Manual QA on real claude.ai (before each release)
 
 0. Run the `docs/notes/spike.md` checklist first and update the code and fixtures it points to.
-   "Find in my accounts" (`rescueProbe`) stays off unless spike check 6 confirms that DNR can inject the
-   `Cookie` header on the background's requests.
 1. In DevTools → Application → Cookies → `https://claude.ai`, confirm `sessionKey`, `lastActiveOrg` and every
    other account cookie are `Secure`. A non-Secure account cookie is invisible to the extension and would
    leak across accounts.

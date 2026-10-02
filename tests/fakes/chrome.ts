@@ -177,7 +177,6 @@ export function createChromeFake() {
     onUpdated.emit(tabId, { status: "loading", url }, { ...t });
   }
   const tabs = {
-    TAB_ID_NONE: -1,
     async query(q: { url?: string | string[] } = {}): Promise<FakeTab[]> {
       const pats = q.url === undefined ? null : (Array.isArray(q.url) ? q.url : [q.url]).map(patternToRegExp);
       return [...tabMap.values()].filter((t) => !pats || pats.some((p) => p.test(t.url))).map((t) => ({ ...t }));
@@ -240,23 +239,7 @@ export function createChromeFake() {
     },
   };
 
-  // --- declarativeNetRequest, webRequest, storage, alarms, action
-  const sessionRules: { id: number }[] = [];
-  const declarativeNetRequest = {
-    async updateSessionRules(o: { addRules?: { id: number }[]; removeRuleIds?: number[] }): Promise<void> {
-      for (const id of o.removeRuleIds ?? []) {
-        const i = sessionRules.findIndex((r) => r.id === id);
-        if (i >= 0) sessionRules.splice(i, 1);
-      }
-      for (const r of o.addRules ?? []) {
-        if (sessionRules.some((x) => x.id === r.id)) throw new Error(`Rule with id ${r.id} already exists`);
-        sessionRules.push(structuredClone(r));
-      }
-    },
-    async getSessionRules(): Promise<{ id: number }[]> {
-      return structuredClone(sessionRules);
-    },
-  };
+  // --- webRequest, storage, alarms, action
   const webRequest = {
     onCompleted: new FakeEvent<(d: { tabId: number; url: string; statusCode: number; type: string }) => void>(),
   };
@@ -284,7 +267,7 @@ export function createChromeFake() {
     },
   };
 
-  const api = { cookies, tabs, runtime, declarativeNetRequest, webRequest, storage, alarms, action };
+  const api = { cookies, tabs, runtime, webRequest, storage, alarms, action };
   return {
     chrome: api as unknown as typeof chrome,
     api,
@@ -294,7 +277,6 @@ export function createChromeFake() {
     removedTabs,
     sentToTabs,
     sentRuntimeMessages,
-    sessionRules,
     badge,
     alarmMap,
     tabMap,

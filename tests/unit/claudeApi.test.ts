@@ -8,7 +8,6 @@ import {
   loginUrl,
   parseIdentity,
   planLabel,
-  retargetOrg,
   whoAmI,
 } from "../../src/background/claudeApi";
 import bootstrap from "../fixtures/bootstrap.json";
@@ -102,13 +101,6 @@ describe("resource helpers", () => {
   it("matches a UUID whatever its case in the API path", () => {
     const id = "0b1c2d3e-0000-4000-8000-00000000abcd";
     expect(isResourceMiss(`https://claude.ai/api/organizations/o/chat_conversations/${id.toUpperCase()}`, 404, id)).toBe(true);
-  });
-
-  it("retargets the organization segment", () => {
-    expect(retargetOrg("https://claude.ai/api/organizations/org-a/chat_conversations/c1?x=1", "org-b")).toBe(
-      "https://claude.ai/api/organizations/org-b/chat_conversations/c1?x=1",
-    );
-    expect(retargetOrg("https://claude.ai/api/artifacts/a1", "org-b")).toBe("https://claude.ai/api/artifacts/a1");
   });
 
   it("builds the login url and matches cookie domains", () => {
