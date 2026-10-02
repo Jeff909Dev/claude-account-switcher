@@ -1,7 +1,7 @@
-import type { BrowserContext, Page } from "@playwright/test";
 import type http from "node:http";
 import { FAKE_ORIGIN, startFakeClaude } from "./fakeClaude";
 import { expect, test } from "./fixtures";
+import { addAccount } from "./flows";
 
 let server: http.Server;
 test.beforeAll(async () => {
@@ -10,18 +10,6 @@ test.beforeAll(async () => {
 test.afterAll(async () => {
   await new Promise<void>((r) => server.close(() => r()));
 });
-
-async function addAccount(context: BrowserContext, popup: Page, who: "work" | "personal") {
-  await popup.locator('[data-action="addIntro"]').click();
-  const loginOpened = context.waitForEvent("page");
-  await popup.locator('[data-action="addStart"]').click();
-  const login = await loginOpened;
-  await login.waitForLoadState();
-  await login.locator(`#as-${who}`).click();
-  await expect(popup.getByText(/Saved you@/)).toBeVisible();
-  await popup.locator('[data-action="addDone"]').click();
-  await expect(popup.locator('[data-action="addIntro"]')).toBeVisible();
-}
 
 test("add two accounts, switch between them, rescue a link from the other account", async ({ context, extensionId }) => {
   const page = await context.newPage();

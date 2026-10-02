@@ -40,7 +40,10 @@ pnpm test          # unit tests
 pnpm test:e2e      # Playwright against a local fake claude.ai
 pnpm build         # dist/ — Load unpacked from there
 pnpm zip           # claude-account-switcher.zip
+CAPTURE_STORE=1 pnpm test:e2e   # re-renders the Chrome Web Store screenshots and promo tile in store/
 ```
+
+`store/` holds the Chrome Web Store listing (`listing.md`), its images and the submission steps (`SUBMIT.md`).
 
 claude.ai assumptions live in `src/background/claudeApi.ts` and `src/content/anchors.ts`;
 `docs/notes/spike.md` is the checklist to confirm them.
