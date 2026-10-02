@@ -46,6 +46,25 @@ describe("chrome fake", () => {
     expect(tabs.map((t) => t.windowId).sort()).toEqual([1, 2]);
   });
 
+  it("without the tabs permission, only shows the URLs of tabs the host permission covers, like Chrome", async () => {
+    const claude = fake.addTab("https://claude.ai/chat/1");
+    const other = fake.addTab("https://example.com/");
+    expect((await fake.api.tabs.get(claude.id)).url).toBe("https://claude.ai/chat/1");
+    expect((await fake.api.tabs.get(other.id)).url).toBeUndefined();
+    expect((await fake.api.tabs.query({})).map((t) => t.url)).toEqual(["https://claude.ai/chat/1", undefined]);
+    expect(await fake.api.tabs.query({ url: "https://example.com/*" })).toEqual([]);
+    expect((await fake.api.tabs.create({ url: "https://example.com/new" })).url).toBeUndefined();
+
+    const seen: { change: { status?: string; url?: string }; url?: string }[] = [];
+    fake.api.tabs.onUpdated.addListener((_id, change, tab) => seen.push({ change, url: tab.url }));
+    fake.navigate(claude.id, "https://example.com/next");
+    fake.navigate(other.id, "https://claude.ai/new");
+    expect(seen).toEqual([
+      { change: { status: "loading" }, url: undefined },
+      { change: { status: "loading", url: "https://claude.ai/new" }, url: "https://claude.ai/new" },
+    ]);
+  });
+
   it("runtime.sendMessage rejects when nobody listens, like Chrome", async () => {
     await expect(fake.api.runtime.sendMessage({ type: "x" })).rejects.toThrow(/Receiving end does not exist/);
   });

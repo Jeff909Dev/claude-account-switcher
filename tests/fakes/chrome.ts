@@ -42,6 +42,8 @@ export interface FakeTab {
   active: boolean;
   status: string;
 }
+/** A tab as the extension sees it: without the "tabs" permission, Chrome leaves out the URL of tabs its host permissions don't cover. */
+export type TabView = Omit<FakeTab, "url"> & { url?: string };
 
 const bare = (d: string) => d.replace(/^\./, "");
 /** chrome.cookies.getAll({domain}): cookie domain equals or is a subdomain of `domain`. */
@@ -92,7 +94,10 @@ export function createStorageArea() {
   };
 }
 
-export function createChromeFake() {
+export function createChromeFake(hostPermissions: string[] = ["https://claude.ai/*"]) {
+  const hostPatterns = hostPermissions.map(patternToRegExp);
+  const canSee = (url: string) => hostPatterns.some((p) => p.test(url));
+
   // --- cookies
   const cookieStore = new Map<string, FakeCookie>();
   const cookieSets: FakeCookie[] = [];
@@ -164,7 +169,8 @@ export function createChromeFake() {
   const removedTabs: number[] = [];
   const sentToTabs: { tabId: number; message: unknown }[] = [];
   const onRemoved = new FakeEvent<(tabId: number, info: { windowId: number; isWindowClosing: boolean }) => void>();
-  const onUpdated = new FakeEvent<(tabId: number, change: { status?: string; url?: string }, tab: FakeTab) => void>();
+  const onUpdated = new FakeEvent<(tabId: number, change: { status?: string; url?: string }, tab: TabView) => void>();
+  const view = ({ url, ...rest }: FakeTab): TabView => (canSee(url) ? { ...rest, url } : { ...rest });
   function addTab(url: string, windowId = 1, active = false): FakeTab {
     const t: FakeTab = { id: nextTabId++, url, windowId, active, status: "complete" };
     tabMap.set(t.id, t);
@@ -174,20 +180,21 @@ export function createChromeFake() {
     const t = tabMap.get(tabId);
     if (!t) throw new Error(`No tab with id: ${tabId}.`);
     t.url = url;
-    onUpdated.emit(tabId, { status: "loading", url }, { ...t });
+    onUpdated.emit(tabId, canSee(url) ? { status: "loading", url } : { status: "loading" }, view(t));
   }
   const tabs = {
-    async query(q: { url?: string | string[] } = {}): Promise<FakeTab[]> {
+    /** A url query only matches tabs whose URL the extension may see. */
+    async query(q: { url?: string | string[] } = {}): Promise<TabView[]> {
       const pats = q.url === undefined ? null : (Array.isArray(q.url) ? q.url : [q.url]).map(patternToRegExp);
-      return [...tabMap.values()].filter((t) => !pats || pats.some((p) => p.test(t.url))).map((t) => ({ ...t }));
+      return [...tabMap.values()].filter((t) => !pats || (canSee(t.url) && pats.some((p) => p.test(t.url)))).map(view);
     },
-    async get(tabId: number): Promise<FakeTab> {
+    async get(tabId: number): Promise<TabView> {
       const t = tabMap.get(tabId);
       if (!t) throw new Error(`No tab with id: ${tabId}.`);
-      return { ...t };
+      return view(t);
     },
-    async create(p: { url?: string; active?: boolean; windowId?: number }): Promise<FakeTab> {
-      return { ...addTab(p.url ?? "about:blank", p.windowId ?? 1, p.active ?? true) };
+    async create(p: { url?: string; active?: boolean; windowId?: number }): Promise<TabView> {
+      return view(addTab(p.url ?? "about:blank", p.windowId ?? 1, p.active ?? true));
     },
     async reload(tabId: number): Promise<void> {
       if (!tabMap.has(tabId)) throw new Error(`No tab with id: ${tabId}.`);

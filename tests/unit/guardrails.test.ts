@@ -22,6 +22,19 @@ describe("guardrails", () => {
     }
   });
 
+  it("asks for exactly the permissions the chrome.* APIs it uses need", () => {
+    // null: works without a permission. tabs.query({ url }) on claude.ai tabs, tabs.get(...).url and
+    // tabs.onUpdated's url only need the claude.ai host permission (tests/fakes/chrome.ts behaves the same).
+    const NEEDS: Record<string, string | null> = {
+      cookies: "cookies", storage: "storage", alarms: "alarms", webRequest: "webRequest", tabs: null, runtime: null, action: null,
+    };
+    const used = new Set(SRC.flatMap((f) => [...readFileSync(f, "utf8").matchAll(/\bchrome\.([a-zA-Z]+)/g)].map((m) => m[1]!)));
+    for (const api of used) expect(Object.keys(NEEDS), `chrome.${api}: which permission does it need?`).toContain(api);
+    const needed = [...used].map((api) => NEEDS[api]).filter((p): p is string => typeof p === "string");
+    const manifest = JSON.parse(readFileSync("src/manifest.json", "utf8")) as { permissions: string[] };
+    expect([...manifest.permissions].sort()).toEqual([...new Set(needed)].sort());
+  });
+
   it("has no console.log / info / debug", () => {
     for (const f of SRC) expect(readFileSync(f, "utf8"), f).not.toMatch(/console\.(log|info|debug)\(/);
   });

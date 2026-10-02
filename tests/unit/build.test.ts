@@ -18,7 +18,7 @@ describe("build", () => {
     expect(m.host_permissions).toEqual(["https://claude.ai/*"]);
     expect(m.content_scripts[0].matches).toEqual(["https://claude.ai/*"]);
     expect([...m.permissions].sort()).toEqual(
-      ["alarms", "cookies", "storage", "tabs", "webRequest"].sort(),
+      ["alarms", "cookies", "storage", "webRequest"].sort(),
     );
     expect(m.commands._execute_action.suggested_key.default).toBe("Alt+Shift+A");
     expect(readFileSync(join(out, "background.js"), "utf8")).toContain("https://claude.ai");
