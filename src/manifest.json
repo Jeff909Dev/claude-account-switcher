@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "Claude Account Switcher",
-  "short_name": "Claude accounts",
-  "version": "0.1.0",
-  "description": "Keep several claude.ai accounts signed in and switch between them instantly.",
+  "name": "Account Switcher for Claude",
+  "short_name": "Account Switcher",
+  "version": "0.2.0",
+  "description": "Keep several claude.ai accounts signed in and switch between them in one click. Unofficial — not affiliated with Anthropic.",
   "minimum_chrome_version": "120",
   "permissions": ["cookies", "storage", "alarms", "webRequest"],
   "host_permissions": ["https://claude.ai/*"],
@@ -11,7 +11,7 @@
   "icons": { "16": "icons/icon-16.png", "32": "icons/icon-32.png", "48": "icons/icon-48.png", "128": "icons/icon-128.png" },
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Claude accounts",
+    "default_title": "Account Switcher for Claude",
     "default_icon": { "16": "icons/icon-16.png", "32": "icons/icon-32.png", "48": "icons/icon-48.png", "128": "icons/icon-128.png" }
   },
   "commands": {

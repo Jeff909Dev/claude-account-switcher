@@ -36,7 +36,7 @@ function row(a: PublicAccount, i: number, s: UiState, now: number): string {
 }
 
 function renderList(s: UiState, now: number): string {
-  const top = `<header class="head"><span class="title"><span class="claude">✻</span> Claude accounts</span><span class="kbd" title="Open this popup">⌥⇧A</span></header>`;
+  const top = `<header class="head"><span class="title"><img class="logo" src="icons/icon-32.png" width="16" height="16" alt=""> Account Switcher for Claude</span><span class="kbd" title="Open this popup">⌥⇧A</span></header>`;
   const status = s.switchingTo
     ? `<div class="status"><span class="spinner"></span> Switching to ${esc(labelOf(s, s.switchingTo))}…</div>`
     : s.lastSwitch && now - s.lastSwitch.at < 10_000

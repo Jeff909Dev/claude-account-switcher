@@ -1,8 +1,8 @@
-# Claude Account Switcher
+# Account Switcher for Claude
 
 Keep several claude.ai accounts signed in and switch between them in one click — and open "not found"
 links (artifacts, chats, projects) in the account they belong to. Each account row shows a one-line usage
-readout (`5h 25% · week 54% · Fable 64%`). Unofficial; not affiliated with Anthropic.
+readout (`5h 25% · week 54% · Fable 64%`). Unofficial — not affiliated with Anthropic.
 
 ## Install
 

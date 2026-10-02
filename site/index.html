@@ -3,14 +3,15 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Claude Account Switcher</title>
-    <meta name="description" content="Keep several claude.ai accounts signed in and switch between them in one click." />
+    <title>Account Switcher for Claude</title>
+    <meta name="description" content="Keep several claude.ai accounts signed in and switch between them in one click. Unofficial — not affiliated with Anthropic." />
+    <link rel="icon" href="icon-128.png" />
     <link rel="stylesheet" href="tokens.css" />
     <style>
       :root { --font-ui: var(--font-sans); --fs-base: 15px; }
       body { line-height: 1.55; }
       main { max-width: 720px; margin: 0 auto; padding: 56px 16px 72px; }
-      .mark { color: var(--claude); font-family: var(--font-mono); font-size: 20px; }
+      .brand { display: flex; align-items: center; gap: 10px; margin: 0; font-weight: 600; font-size: 15px; }
       h1 { font-family: var(--font-serif); font-weight: 400; font-size: clamp(28px, 6vw, 40px); line-height: 1.15; margin: 12px 0; }
       .lead { color: var(--text-2); font-size: 17px; margin: 0 0 24px; }
       .cta { display: flex; flex-wrap: wrap; gap: 10px; }
@@ -30,7 +31,7 @@
   </head>
   <body>
     <main>
-      <span class="mark" aria-hidden="true">✻</span>
+      <p class="brand"><img src="icon-128.png" width="28" height="28" alt="" /><span class="name">Account Switcher for Claude</span></p>
       <h1>Every Claude account, one click away.</h1>
       <p class="lead">A small Chrome extension that keeps all your claude.ai accounts signed in, switches between them instantly, and opens “not found” links in the account they belong to.</p>
       <p class="fine">Unofficial — not affiliated with Anthropic.</p>

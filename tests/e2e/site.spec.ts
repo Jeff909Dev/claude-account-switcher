@@ -8,6 +8,8 @@ for (const width of [390, 1280]) {
   test(`landing page renders at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.goto(SITE);
+    await expect(page).toHaveTitle("Account Switcher for Claude");
+    await expect(page.locator(".name")).toHaveText("Account Switcher for Claude");
     await expect(page.locator("h1")).toBeVisible();
     await expect(page.locator("#download")).toHaveAttribute("href", DOWNLOAD);
     await expect(page.getByRole("link", { name: /GitHub/ }).first()).toHaveAttribute("href", "https://github.com/Jeff909Dev/claude-account-switcher");

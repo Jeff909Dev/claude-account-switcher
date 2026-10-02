@@ -26,6 +26,13 @@ describe("popup", () => {
     expect(root.textContent).toContain("3 accounts");
   });
 
+  it("names the extension in the header, with its own icon", () => {
+    mount(root, send, ui(), () => NOW);
+    const title = root.querySelector(".head .title")!;
+    expect(title.textContent!.trim()).toBe("Account Switcher for Claude");
+    expect(title.querySelector("img")!.getAttribute("src")).toBe("icons/icon-32.png");
+  });
+
   it("shows a usage line per row: live for the active one, 'as of' for others", () => {
     mount(root, send, ui(), () => NOW);
     const [a, b] = [...root.querySelectorAll(".row .usage")] as HTMLElement[];
@@ -154,12 +161,12 @@ describe("popup", () => {
   it("escapes labels, emails, the error banner and the mismatch email", () => {
     const evil = `<img src=x onerror=alert(1)>`;
     mount(root, send, ui({ accounts: [acct("x", evil, { email: evil })], error: evil }), () => NOW);
-    expect(root.querySelector("img")).toBeNull();
+    expect(root.querySelector("[onerror]")).toBeNull(); // the header's own icon is the only <img>
     expect(root.querySelector(".error")!.textContent).toBe(evil);
     expect(root.querySelector(".label")!.textContent).toBe(evil);
     expect(root.querySelector(".email")!.textContent).toBe(evil);
     mount(root, send, ui({ add: addState({ phase: "mismatch", mismatchEmail: evil }) }), () => NOW);
-    expect(root.querySelector("img")).toBeNull();
+    expect(root.querySelector("[onerror]")).toBeNull();
     expect(root.textContent).toContain(evil);
   });
 

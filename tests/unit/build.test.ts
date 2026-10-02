@@ -21,6 +21,13 @@ describe("build", () => {
       ["alarms", "cookies", "storage", "webRequest"].sort(),
     );
     expect(m.commands._execute_action.suggested_key.default).toBe("Alt+Shift+A");
+    // Chrome Web Store: a third-party name must not read as official.
+    expect(m.name).toBe("Account Switcher for Claude");
+    expect(m.short_name).toBe("Account Switcher");
+    expect(m.action.default_title).toBe(m.name);
+    expect(m.description.length).toBeLessThanOrEqual(132);
+    expect(m.description).toContain("Unofficial — not affiliated with Anthropic.");
+    expect(m.version).toBe(JSON.parse(readFileSync("package.json", "utf8")).version);
     expect(readFileSync(join(out, "background.js"), "utf8")).toContain("https://claude.ai");
     expect(readFileSync(join(out, "content.js"), "utf8")).not.toContain(`"open"`); // the in-page UI's shadow root stays closed
     for (const f of ["popup.html", "popup.css", "popup.js", "content.js", "tokens.css"]) {
