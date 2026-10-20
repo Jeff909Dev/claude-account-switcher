@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Account Switcher for Claude",
   "short_name": "Account Switcher",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Keep several claude.ai accounts signed in and switch between them in one click. Unofficial — not affiliated with Anthropic.",
   "minimum_chrome_version": "120",
   "permissions": ["cookies", "storage", "alarms", "webRequest"],
