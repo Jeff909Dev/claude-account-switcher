@@ -93,7 +93,10 @@ async function getJson(fetchImpl: FetchLike, path: string): Promise<unknown> {
 }
 
 export async function whoAmI(opts: { fetchImpl?: FetchLike; preferredOrgUuid?: string | null } = {}): Promise<Identity> {
-  return parseIdentity(await getJson(opts.fetchImpl ?? defaultFetch, IDENTITY_PATH), opts.preferredOrgUuid);
+  const json = await getJson(opts.fetchImpl ?? defaultFetch, IDENTITY_PATH);
+  // A dead or missing session gets 200 with `account: null` rather than a 401 (checked 2026-10-20).
+  if ((json as { account?: unknown } | null)?.account === null) throw new AuthError(401);
+  return parseIdentity(json, opts.preferredOrgUuid);
 }
 
 export const usagePath = (orgUuid: string): string => `/api/organizations/${encodeURIComponent(orgUuid)}/usage`;

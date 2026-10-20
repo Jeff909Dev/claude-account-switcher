@@ -62,7 +62,8 @@ export function startFakeClaude(port = FAKE_PORT): Promise<http.Server> {
       return send(302, "text/plain", "", { location: "/new", "set-cookie": [...((headers["set-cookie"] as string[]) ?? []), ...set] });
     }
     if (url.pathname === "/api/bootstrap") {
-      if (!user) return json(401, { error: "unauthorized" });
+      // Like claude.ai: no live session is a 200 with `account: null`, not a 401.
+      if (!user) return json(200, { account: null, locale: "en-US" });
       return json(200, { account: { uuid: user.uuid, email_address: user.email, full_name: user.name, memberships: [
         { organization: { uuid: user.org, name: `${user.name}'s org`, capabilities: user.caps, rate_limit_tier: user.tier } },
       ] } });

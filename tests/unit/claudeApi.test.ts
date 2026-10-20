@@ -67,6 +67,11 @@ describe("whoAmI", () => {
     await expect(whoAmI({ fetchImpl: async () => Promise.reject(new TypeError("offline")) })).rejects.toBeInstanceOf(NetworkError);
   });
 
+  it("treats a 200 with `account: null` (claude.ai's answer for a dead or missing session) as a 401", async () => {
+    const signedOut = async () => json(200, { account: null, locale: "en-US" });
+    await expect(whoAmI({ fetchImpl: signedOut })).rejects.toEqual(new AuthError(401));
+  });
+
   it("reports a 200 that isn't JSON (e.g. an HTML challenge page) as a NetworkError", async () => {
     const html = async () => new Response("<!doctype html><title>Just a moment…</title>", { status: 200, headers: { "content-type": "text/html" } });
     await expect(whoAmI({ fetchImpl: html })).rejects.toEqual(new NetworkError("claude.ai answered with a non-JSON body"));
