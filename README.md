@@ -6,6 +6,9 @@ readout (`5h 25% · week 54% · Fable 64%`). Unofficial — not affiliated with 
 
 ## Install
 
+From the [Chrome Web Store](https://chromewebstore.google.com/detail/account-switcher-for-clau/iffdbcbbcdahjkbgbddhccmaadhnemie),
+then pin it. Or by hand:
+
 1. Download `claude-account-switcher.zip` from the latest release and unzip it.
 2. Open `chrome://extensions` and turn on **Developer mode**.
 3. **Load unpacked** → pick the unzipped folder. Pin the extension.

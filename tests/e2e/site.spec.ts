@@ -5,6 +5,7 @@ const SITE = `file://${path.resolve("site/index.html")}`;
 const PRIVACY = `file://${path.resolve("site/privacy.html")}`;
 const REPO = "https://github.com/Jeff909Dev/claude-account-switcher";
 const DOWNLOAD = `${REPO}/releases/latest/download/claude-account-switcher.zip`;
+const STORE = "https://chromewebstore.google.com/detail/account-switcher-for-clau/iffdbcbbcdahjkbgbddhccmaadhnemie";
 
 for (const width of [390, 1280]) {
   test(`landing page renders at ${width}px`, async ({ page }) => {
@@ -13,6 +14,7 @@ for (const width of [390, 1280]) {
     await expect(page).toHaveTitle("Account Switcher for Claude");
     await expect(page.locator(".name")).toHaveText("Account Switcher for Claude");
     await expect(page.locator("h1")).toBeVisible();
+    await expect(page.locator("#store")).toHaveAttribute("href", STORE);
     await expect(page.locator("#download")).toHaveAttribute("href", DOWNLOAD);
     await expect(page.getByRole("link", { name: /GitHub/ }).first()).toHaveAttribute("href", REPO);
     await expect(page.locator("footer").getByRole("link", { name: "Privacy policy" })).toHaveAttribute("href", "privacy.html");
